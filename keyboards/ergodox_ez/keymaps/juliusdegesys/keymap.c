@@ -41,6 +41,7 @@ enum layers {
     NUM,
 };
 
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [DEF] = LAYOUT_ez34(
     KC_QUOT, KC_COMM, KC_DOT, KC_P  , KC_Y   , KC_F  , KC_G   , KC_C, KC_R, KC_L,
@@ -164,6 +165,11 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
     }
 }
 
+void reset_oneshot(oneshot_state *state, uint16_t mod) {
+    *state = os_up_unqueued;
+    unregister_code(mod);
+}
+
 // Custom oneshot mod implementation that doesn't rely on timers. If a mod is
 // used while it is held it will be unregistered on keyup as normal, otherwise
 // it will be queued and only released after the next non-mod keyup.
@@ -191,8 +197,7 @@ void update_oneshot(
                 break;
             case os_down_used:
                 // If we did use the mod while trigger was held, unregister it.
-                *state = os_up_unqueued;
-                unregister_code(mod);
+                reset_oneshot(state, mod);
                 break;
             default:
                 break;
@@ -202,8 +207,7 @@ void update_oneshot(
         if (key_down) {
             if (is_oneshot_cancel_key(keycode) && *state != os_up_unqueued) {
                 // Cancel oneshot on designated cancel keydown.
-                *state = os_up_unqueued;
-                unregister_code(mod);
+                reset_oneshot(state, mod);
             }
         } else {
             if (!is_oneshot_ignored_key(keycode)) {
@@ -213,8 +217,7 @@ void update_oneshot(
                     *state = os_down_used;
                     break;
                 case os_up_queued:
-                    *state = os_up_unqueued;
-                    unregister_code(mod);
+                    reset_oneshot(state, mod);
                     break;
                 default:
                     break;
@@ -259,8 +262,10 @@ void update_swapper(
     }
 }
 
+uint16_t last_keycode = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // TODO: Toggle some home-row lights based on the state.
     update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
 
     update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record);
@@ -278,53 +283,55 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     update_oneshot(&os_cmd_state, KC_LCMD, OS_CMD, keycode, record);
     update_oneshot(&os_cmd_state, KC_LCMD, OS_HYPR, keycode, record);
 
+    if (keycode == LA_NAV && record->event.pressed && last_keycode == LA_NAV) {
+        reset_oneshot(&os_shft_state, KC_LSFT);
+        reset_oneshot(&os_ctrl_state, KC_LCTL);
+        reset_oneshot(&os_alt_state, KC_LALT);
+        reset_oneshot(&os_cmd_state, KC_LCMD);
+    }
+
+    if (record->event.pressed) {
+        last_keycode = keycode;
+    }
+
     return true;
 }
 
-//uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-//    switch (keycode) {
-//        case OSL(1):
-//            return 1250;
-//        default:
-//            return TAPPING_TERM;
-//    }
-//}
-//
+
 layer_state_t layer_state_set_user(layer_state_t state) {
+    state = update_tri_layer_state(state, SYM, NAV, NUM);
+
     uint8_t layer = biton(state);
-  ergodox_board_led_off();
-  ergodox_right_led_1_off();
-  ergodox_right_led_2_off();
-  ergodox_right_led_3_off();
-  switch (layer) {
-    case 1:
-      ergodox_right_led_1_on();
-      break;
-    case 2:
-      ergodox_right_led_2_on();
-      break;
-    case 3:
-      ergodox_right_led_3_on();
-      break;
-    case 4:
-      ergodox_right_led_1_on();
-      ergodox_right_led_2_on();
-      break;
-    case 5:
-      ergodox_right_led_1_on();
-      ergodox_right_led_3_on();
-      break;
-    case 6:
-      ergodox_right_led_2_on();
-      ergodox_right_led_3_on();
-      break;
-    case 7:
-      ergodox_right_led_1_on();
-      ergodox_right_led_2_on();
-      ergodox_right_led_3_on();
-      break;
-    default:
-      break;
-  }
-    return update_tri_layer_state(state, SYM, NAV, NUM);
+    ergodox_board_led_off();
+    ergodox_right_led_1_off();
+    ergodox_right_led_2_off();
+    ergodox_right_led_3_off();
+
+    ergodox_right_led_1_set(15);
+    ergodox_right_led_2_set(15);
+    ergodox_right_led_3_set(15);
+
+    switch (layer) {
+        case DEF:
+            // Blue
+            // Don't display anything for now...
+            ergodox_right_led_3_on();
+            break;
+        case SYM:
+            // Red
+            ergodox_right_led_1_on();
+            break;
+        case NAV:
+            // Purple
+            ergodox_right_led_1_on();
+            ergodox_right_led_3_on();
+            break;
+        case NUM:
+            // Green
+            ergodox_right_led_2_on();
+            break;
+        default:
+            break;
+    }
+    return state;
 }
