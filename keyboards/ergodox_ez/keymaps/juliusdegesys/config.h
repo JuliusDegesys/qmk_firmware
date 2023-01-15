@@ -4,7 +4,7 @@
 */
 #pragma once
 
-#define ORYX_CONFIGURATOR
+//#define ORYX_CONFIGURATOR
 #define IGNORE_MOD_TAP_INTERRUPT
 #undef TAPPING_TERM
 #define TAPPING_TERM 365
@@ -17,7 +17,8 @@
 
 #define RGB_MATRIX_STARTUP_SPD 60
 
-
+// The below makes specifying a 34 key layout (excluding the reboot key) easier
+// to specify
 #define LAYOUT_ez34(                                                \
     K00, K01, K02, K03, K04,               K05, K06, K07, K08, K09, \
     K10, K11, K12, K13, K14,               K15, K16, K17, K18, K19, \
