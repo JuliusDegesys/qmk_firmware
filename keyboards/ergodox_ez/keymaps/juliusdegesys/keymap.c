@@ -77,28 +77,30 @@ void keyboard_post_init_user(void) {
   rgb_matrix_enable();
 }
 
+#define OFF {0, 0, 0}
+#define CYAN {0, 222, 238}
+#define PURP {204, 29, 197}
+#define RED {255, 0, 0}
+#define GREEN {66, 255, 0}
+
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [DEF] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {131,255,238}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
-    [NAV] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {0,0,0}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {216,218,204}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
-    [SYM] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,0,0}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,0,0}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,0,0}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
-    [NUM] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {74,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {74,255,255}, {74,255,255}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} },
+    [DEF] = { OFF, OFF, OFF, OFF, OFF, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, OFF, OFF, OFF, OFF },
+    [NAV] = { OFF, OFF, OFF, OFF, OFF, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, PURP, PURP, PURP, PURP, OFF, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, OFF, OFF, OFF, OFF },
+    [SYM] = { OFF, OFF, OFF, OFF, OFF, OFF, RED, RED, RED, RED, OFF, RED, RED, RED, RED, OFF, RED, RED, RED, RED, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, RED, RED, RED, RED, RED, RED, RED, RED, RED, OFF, RED, RED, RED, RED, RED, OFF, OFF, OFF, OFF },
+    [NUM] = { OFF, OFF, OFF, OFF, OFF, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, OFF, OFF, OFF, GREEN, GREEN, OFF, OFF, OFF, OFF },
 
 };
 
 void set_layer_color(int layer) {
   for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
-    HSV hsv = {
-      .h = pgm_read_byte(&ledmap[layer][i][0]),
-      .s = pgm_read_byte(&ledmap[layer][i][1]),
-      .v = pgm_read_byte(&ledmap[layer][i][2]),
+    RGB rgb = {
+      .r = pgm_read_byte(&ledmap[layer][i][0]),
+      .g = pgm_read_byte(&ledmap[layer][i][1]),
+      .b = pgm_read_byte(&ledmap[layer][i][2]),
     };
-    if (!hsv.h && !hsv.s && !hsv.v) {
-        rgb_matrix_set_color( i, 0, 0, 0 );
-    } else {
-        RGB rgb = hsv_to_rgb( hsv );
-        float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-        rgb_matrix_set_color( i, f * rgb.r, f * rgb.g, f * rgb.b );
-    }
+    // Global brightness setting.
+    float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+    rgb_matrix_set_color(i, f*rgb.r, f*rgb.g, f*rgb.b);
   }
 }
 
