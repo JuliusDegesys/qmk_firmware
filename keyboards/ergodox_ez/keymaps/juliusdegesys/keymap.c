@@ -77,18 +77,32 @@ void keyboard_post_init_user(void) {
   rgb_matrix_enable();
 }
 
-#define OFF {0, 0, 0}
-#define CYAN {0, 222, 238}
-#define PURP {204, 29, 197}
-#define RED {255, 0, 0}
-#define GREEN {66, 255, 0}
 
 const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
-    [DEF] = { OFF, OFF, OFF, OFF, OFF, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, CYAN, OFF, OFF, OFF, OFF },
-    [NAV] = { OFF, OFF, OFF, OFF, OFF, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, PURP, PURP, PURP, PURP, OFF, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, PURP, OFF, OFF, OFF, OFF },
-    [SYM] = { OFF, OFF, OFF, OFF, OFF, OFF, RED, RED, RED, RED, OFF, RED, RED, RED, RED, OFF, RED, RED, RED, RED, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, RED, RED, RED, RED, RED, RED, RED, RED, RED, OFF, RED, RED, RED, RED, RED, OFF, OFF, OFF, OFF },
-    [NUM] = { OFF, OFF, OFF, OFF, OFF, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, OFF, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN, OFF, OFF, OFF, GREEN, GREEN, OFF, OFF, OFF, OFF },
-
+    [DEF] = LAYOUT_LED(
+        CYAN, CYAN, CYAN, CYAN, CYAN,      CYAN, CYAN, CYAN, CYAN, CYAN,
+        CYAN, CYAN, CYAN, CYAN, CYAN,      CYAN, CYAN, CYAN, CYAN, CYAN,
+        CYAN, CYAN, CYAN, CYAN, CYAN,      CYAN, CYAN, CYAN, CYAN, CYAN,
+                                PURP,      RED
+        ),
+    [NAV] = LAYOUT_LED(
+        OFF , PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
+        PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
+        PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
+                                CYAN,      GREEN
+        ),
+    [SYM] = LAYOUT_LED(
+        RED, RED, RED, RED, RED,      OFF, RED, RED, RED, RED,
+        OFF, RED, RED, RED, RED,      OFF, RED, RED, RED, RED,
+        RED, RED, RED, RED, RED,      OFF, RED, RED, RED, RED,
+                          GREEN,      CYAN
+        ),
+    [NUM] = LAYOUT_LED(
+        GREEN, GREEN, GREEN, GREEN, GREEN,      GREEN, GREEN, GREEN, GREEN, GREEN,
+        GREEN, GREEN, GREEN, GREEN, GREEN,      GREEN, GREEN, GREEN, GREEN, GREEN,
+        GREEN, GREEN, OFF  , OFF  , OFF  ,      OFF  , OFF  , OFF  , OFF  , OFF  ,
+                                    RED  ,      PURP
+        ),
 };
 
 void set_layer_color(int layer) {
