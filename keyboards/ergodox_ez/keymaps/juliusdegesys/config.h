@@ -57,4 +57,4 @@ LAYOUT_ergodox_pretty(                                              \
                    K30,                         K31                 \
 )                                                                   \
 {OFF, OFF, OFF, OFF, OFF, K05, K06, K07, K08, K09, K15, K16, K17, K18, K19, K25, K26, K27, K28, K29, K31, OFF, OFF, OFF, \
-    OFF, OFF, OFF, OFF, OFF, K04, K03, K02, K01, K14, K00, K13, K12, K11, K10, K24, K23, K22, K21, K20, K30, OFF, OFF, OFF}
+    OFF, OFF, OFF, OFF, OFF, K04, K03, K02, K01, K00, K14, K13, K12, K11, K10, K24, K23, K22, K21, K20, K30, OFF, OFF, OFF}
