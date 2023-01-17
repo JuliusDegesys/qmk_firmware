@@ -41,35 +41,49 @@ enum layers {
     NUM,
 };
 
+// Represents the four states a oneshot key can be in
+typedef enum {
+    os_down_unused, // Key is down and not used
+    os_down_used, // Key is down and used
+    os_up_unqueued, // Key is up and not queued
+    os_up_queued,  // Key is up and queued
+} oneshot_state;
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [DEF] = LAYOUT_ez34(
-    KC_QUOT, KC_COMM, KC_DOT, KC_P  , KC_Y   , KC_F  , KC_G   , KC_C, KC_R, KC_L,
-    KC_A   , KC_O   , KC_E  , KC_U  , KC_I   , KC_D  , KC_H   , KC_T, KC_N, KC_S,
-    KC_SCLN, KC_Q   , KC_J  , KC_K  , KC_X   , KC_B  , KC_M   , KC_W, KC_V, KC_Z,
-                              LA_NAV, KC_LSFT, KC_SPC, LA_SYM
+    KC_QUOT, KC_COMM, KC_DOT, KC_P  , KC_Y   ,    KC_F  , KC_G   , KC_C, KC_R, KC_L,
+    KC_A   , KC_O   , KC_E  , KC_U  , KC_I   ,    KC_D  , KC_H   , KC_T, KC_N, KC_S,
+    KC_SCLN, KC_Q   , KC_J  , KC_K  , KC_X   ,    KC_B  , KC_M   , KC_W, KC_V, KC_Z,
+                              LA_NAV, KC_LSFT,    KC_SPC, LA_SYM
   ),
   [SYM] = LAYOUT_ez34(
-    KC_TILD, KC_UNDS, KC_PLUS, KC_QUES, KC_PIPE, XXXXXXX, KC_EXLM, KC_AT  , KC_HASH, KC_DLR ,
-    XXXXXXX, KC_LCBR, KC_LBRC, KC_LPRN, KC_UNDS, XXXXXXX, KC_RPRN, KC_RBRC, KC_RCBR, KC_ESC ,
-    KC_GRV , KC_MINS, KC_EQL , KC_SLSH, KC_BSLS, XXXXXXX, KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR,
-                               _______, _______, _______, _______
+    KC_TILD, KC_UNDS, KC_PLUS, KC_QUES, KC_PIPE,    XXXXXXX, KC_EXLM, KC_AT  , KC_HASH, KC_DLR ,
+    XXXXXXX, KC_LCBR, KC_LBRC, KC_LPRN, KC_UNDS,    XXXXXXX, KC_RPRN, KC_RBRC, KC_RCBR, KC_ESC ,
+    KC_GRV , KC_MINS, KC_EQL , KC_SLSH, KC_BSLS,    XXXXXXX, KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR,
+                               _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT_ez34(
-    XXXXXXX    , SW_WIN    , LGUI(LSFT(KC_T)), LGUI(KC_T)  , LGUI(KC_SPACE)  , KC_PGUP, LCTL(LSFT(KC_TAB)), KC_UP  , LCTL(KC_TAB), KC_ESC ,
-    OS_SHFT    , OS_CTRL   , OS_ALT          , OS_CMD      , OS_HYPR         , KC_ENT , KC_LEFT           , KC_DOWN, KC_RGHT     , KC_BSPC,
-    KC_MAC_UNDO, KC_MAC_CUT, KC_MAC_COPY     , KC_MAC_PASTE, LGUI(LSFT(KC_4)), KC_PGDN, LSFT(KC_TAB)      , KC_TAB , KC_GRAVE    , KC_DEL ,
-                                                    _______      , _______         , _______                    , _______
+    XXXXXXX    , SW_WIN    , LGUI(LSFT(KC_T)), LGUI(KC_T)  , LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(LSFT(KC_TAB)), KC_UP  , LCTL(KC_TAB), KC_ESC ,
+    OS_SHFT    , OS_CTRL   , OS_ALT          , OS_CMD      , OS_HYPR         ,    KC_ENT , KC_LEFT           , KC_DOWN, KC_RGHT     , KC_BSPC,
+    KC_MAC_UNDO, KC_MAC_CUT, KC_MAC_COPY     , KC_MAC_PASTE, LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)      , KC_TAB , KC_GRAVE    , KC_DEL ,
+                                              _______      , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
-    KC_F1 , KC_F2 , KC_F3  , KC_F4  , KC_F5  , KC_F6  , KC_F7  , KC_F8  , KC_F9  , KC_F10 ,
-    KC_1  , KC_2  , KC_3   , KC_4   , KC_5   , KC_6   , KC_7   , KC_8   , KC_9   , KC_0   ,
-    KC_F11, KC_F12, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-                             _______, _______, _______, _______
+    XXXXXXX, KC_F4 , KC_F3 , KC_F2 , KC_F1,    XXXXXXX, KC_1, KC_2, KC_3, XXXXXXX,
+    XXXXXXX, KC_F8 , KC_F7 , KC_F6 , KC_F5,    KC_0   , KC_4, KC_5, KC_6, XXXXXXX,
+    XXXXXXX, KC_F12, KC_F11, KC_F10, KC_F9,    XXXXXXX, KC_7, KC_8, KC_9, XXXXXXX,
+                          _______, _______,    _______, _______
   ),
 };
 
+bool sw_win_active = false;
 
+oneshot_state os_shft_state = os_up_unqueued;
+oneshot_state os_ctrl_state = os_up_unqueued;
+oneshot_state os_alt_state = os_up_unqueued;
+oneshot_state os_cmd_state = os_up_unqueued;
+oneshot_state os_hypr_state = os_up_unqueued;
 
 extern rgb_config_t rgb_matrix_config;
 
@@ -106,16 +120,30 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
 };
 
 void set_layer_color(int layer) {
-  for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
-    RGB rgb = {
-      .r = pgm_read_byte(&ledmap[layer][i][0]),
-      .g = pgm_read_byte(&ledmap[layer][i][1]),
-      .b = pgm_read_byte(&ledmap[layer][i][2]),
-    };
-    // Global brightness setting.
-    float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-    rgb_matrix_set_color(i, f*rgb.r, f*rgb.g, f*rgb.b);
-  }
+    for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
+        RGB rgb = {
+            .r = pgm_read_byte(&ledmap[layer][i][0]),
+            .g = pgm_read_byte(&ledmap[layer][i][1]),
+            .b = pgm_read_byte(&ledmap[layer][i][2]),
+        };
+
+
+        // Global brightness setting.
+        float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+        rgb_matrix_set_color(i, f*rgb.r, f*rgb.g, f*rgb.b);
+    }
+    if (os_cmd_state == os_down_unused || os_cmd_state == os_up_queued) {
+        rgb_matrix_set_color(35, 255, 0, 0);
+    }
+    if (os_alt_state == os_down_unused || os_alt_state == os_up_queued) {
+        rgb_matrix_set_color(36, 255, 0, 0);
+    }
+    if (os_ctrl_state == os_down_unused || os_ctrl_state == os_up_queued) {
+        rgb_matrix_set_color(37, 255, 0, 0);
+    }
+    if (os_shft_state == os_down_unused || os_shft_state == os_up_queued) {
+        rgb_matrix_set_color(38, 255, 0, 0);
+    }
 }
 
 bool rgb_matrix_indicators_user(void) {
@@ -140,13 +168,6 @@ bool rgb_matrix_indicators_user(void) {
 // Oneshot mod implementation
 ////////////////////////////////////////////////////////////////////////////////
 
-// Represents the four states a oneshot key can be in
-typedef enum {
-    os_down_unused, // Key is down and not used
-    os_down_used, // Key is down and used
-    os_up_unqueued, // Key is up and not queued
-    os_up_queued,  // Key is up and queued
-} oneshot_state;
 
 // To be implemented by the consumer. Defines keys to cancel oneshot mods.
 bool is_oneshot_cancel_key(uint16_t keycode) {
@@ -245,13 +266,6 @@ void update_oneshot(
 
 
 
-bool sw_win_active = false;
-
-oneshot_state os_shft_state = os_up_unqueued;
-oneshot_state os_ctrl_state = os_up_unqueued;
-oneshot_state os_alt_state = os_up_unqueued;
-oneshot_state os_cmd_state = os_up_unqueued;
-oneshot_state os_hypr_state = os_up_unqueued;
 
 void update_swapper(
     bool *active,
