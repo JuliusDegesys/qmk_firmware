@@ -1,14 +1,11 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
-#define KC_MAC_UNDO LGUI(KC_Z)
-#define KC_MAC_CUT LGUI(KC_X)
-#define KC_MAC_COPY LGUI(KC_C)
-#define KC_MAC_PASTE LGUI(KC_V)
-#define KC_PC_UNDO LCTL(KC_Z)
-#define KC_PC_CUT LCTL(KC_X)
-#define KC_PC_COPY LCTL(KC_C)
-#define KC_PC_PASTE LCTL(KC_V)
+#define KC_UNDO LGUI(KC_Z)
+#define KC_CUT LGUI(KC_X)
+#define KC_COPY LGUI(KC_C)
+#define KC_PASTE LGUI(KC_V)
+
 #define ES_LESS_MAC KC_GRAVE
 #define ES_GRTR_MAC LSFT(KC_GRAVE)
 #define ES_BSLS_MAC ALGR(KC_6)
@@ -30,8 +27,8 @@ enum custom_keycodes {
     OS_MEH,
     OS_HYPR,
 
-    SW_WIN,  // Switch to next window         (cmd-tab)
-    SW_LANG, // Switch to next input language (ctl-spc)
+    CMD_TAB, // Switch to next window         (cmd-tab)
+    CMD_GRV, // Switch to next window of the same app (cmd-grv)
 };
 
 enum layers {
@@ -64,20 +61,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT_ez34(
-    XXXXXXX    , SW_WIN    , LGUI(LSFT(KC_T)), LGUI(KC_T)  , LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(LSFT(KC_TAB)), KC_UP  , LCTL(KC_TAB), KC_ESC ,
-    OS_SHFT    , OS_CTRL   , OS_ALT          , OS_CMD      , OS_HYPR         ,    KC_ENT , KC_LEFT           , KC_DOWN, KC_RGHT     , KC_BSPC,
-    KC_MAC_UNDO, KC_MAC_CUT, KC_MAC_COPY     , KC_MAC_PASTE, LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)      , KC_TAB , KC_GRAVE    , KC_DEL ,
-                                              _______      , _______         ,    _______, _______
+    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(LSFT(KC_TAB)), KC_UP  , LCTL(KC_TAB), KC_ESC ,
+    OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT           , KC_DOWN, KC_RGHT     , KC_BSPC,
+    KC_UNDO, KC_CUT , KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)      , KC_TAB , KC_GRAVE    , KC_DEL ,
+                                        _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
-    XXXXXXX, KC_F4 , KC_F3 , KC_F2 , KC_F1,    XXXXXXX, KC_1, KC_2, KC_3, XXXXXXX,
-    XXXXXXX, KC_F8 , KC_F7 , KC_F6 , KC_F5,    XXXXXXX, KC_4, KC_5, KC_6, KC_0   ,
-    XXXXXXX, KC_F12, KC_F11, KC_F10, KC_F9,    XXXXXXX, KC_7, KC_8, KC_9, XXXXXXX,
+    XXXXXXX, KC_F4 , KC_F3 , KC_F2 , KC_F1,    KC_PLUS, KC_7, KC_8, KC_9, KC_ASTR,
+    XXXXXXX, KC_F8 , KC_F7 , KC_F6 , KC_F5,    KC_MINS, KC_4, KC_5, KC_6, KC_0   ,
+    XXXXXXX, KC_F12, KC_F11, KC_F10, KC_F9,    KC_SLSH, KC_1, KC_2, KC_3, KC_EQL ,
                           _______, _______,    _______, _______
   ),
 };
 
-bool sw_win_active = false;
+
+bool cmd_tab_active = false;
+bool cmd_grv_active = false;
 
 oneshot_state os_shft_state = os_up_unqueued;
 oneshot_state os_ctrl_state = os_up_unqueued;
@@ -100,7 +99,7 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
                                 PURP,      RED
         ),
     [NAV] = LAYOUT_LED(
-        OFF , PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
+        PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
         PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
         PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
                                 CYAN,      GREEN
@@ -112,12 +111,20 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
                           GREEN,      CYAN
         ),
     [NUM] = LAYOUT_LED(
-        GREEN, GREEN, GREEN, GREEN, OFF  ,      OFF  , GREEN, GREEN, GREEN, OFF  ,
-        GREEN, GREEN, GREEN, GREEN, OFF  ,      OFF  , GREEN, GREEN, GREEN, GREEN,
-        GREEN, GREEN, GREEN, GREEN, OFF  ,      OFF  , GREEN, GREEN, GREEN, OFF  ,
+        GREEN, GREEN, GREEN, GREEN, OFF  ,      CYAN, GREEN, GREEN, GREEN, CYAN,
+        GREEN, GREEN, GREEN, GREEN, OFF  ,      CYAN, GREEN, GREEN, GREEN, GREEN,
+        GREEN, GREEN, GREEN, GREEN, OFF  ,      CYAN, GREEN, GREEN, GREEN, CYAN,
                                     RED  ,      PURP
         ),
 };
+
+void check_mod(oneshot_state *state, RGB *rgb) {
+    if (*state != os_up_unqueued) {
+        rgb->r = 255 - rgb->r;
+        rgb->g = 255 - rgb->g;
+        rgb->b = 255 - rgb->b;
+    }
+}
 
 void set_layer_color(int layer) {
     for (int i = 0; i < RGB_MATRIX_LED_COUNT; i++) {
@@ -127,21 +134,20 @@ void set_layer_color(int layer) {
             .b = pgm_read_byte(&ledmap[layer][i][2]),
         };
 
-
         // Global brightness setting.
         float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
         rgb_matrix_set_color(i, f*rgb.r, f*rgb.g, f*rgb.b);
     }
-    if (os_cmd_state == os_down_unused || os_cmd_state == os_up_queued) {
+    if (os_cmd_state != os_up_unqueued) {
         rgb_matrix_set_color(35, 255, 0, 0);
     }
-    if (os_alt_state == os_down_unused || os_alt_state == os_up_queued) {
+    if (os_alt_state != os_up_unqueued) {
         rgb_matrix_set_color(36, 255, 0, 0);
     }
-    if (os_ctrl_state == os_down_unused || os_ctrl_state == os_up_queued) {
+    if (os_ctrl_state != os_up_unqueued) {
         rgb_matrix_set_color(37, 255, 0, 0);
     }
-    if (os_shft_state == os_down_unused || os_shft_state == os_up_queued) {
+    if (os_shft_state != os_up_unqueued) {
         rgb_matrix_set_color(38, 255, 0, 0);
     }
 }
@@ -218,52 +224,35 @@ void update_oneshot(
     keyrecord_t *record
 ) {
     bool key_down = record->event.pressed;
-    if (keycode == trigger) {
-        if (key_down) {
-            // Trigger keydown
+    if (key_down) {
+        if (keycode == trigger) {
             if (*state == os_up_unqueued) {
                 register_code(mod);
             }
             *state = os_down_unused;
-        } else {
-            // Trigger keyup
-            switch (*state) {
-            case os_down_unused:
+        } else if (is_oneshot_cancel_key(keycode) && *state != os_up_unqueued) {
+            // Cancel oneshot on designated cancel keydown.
+            reset_oneshot(state, mod);
+        }
+    } else { // Key Up
+        if (keycode == trigger) {
+            if (*state == os_down_unused) {
                 // If we didn't use the mod while trigger was held, queue it.
                 *state = os_up_queued;
-                break;
-            case os_down_used:
+            } else if (*state == os_down_used) {
                 // If we did use the mod while trigger was held, unregister it.
                 reset_oneshot(state, mod);
-                break;
-            default:
-                break;
             }
-        }
-    } else {
-        if (key_down) {
-            if (is_oneshot_cancel_key(keycode) && *state != os_up_unqueued) {
-                // Cancel oneshot on designated cancel keydown.
+        } else if (!is_oneshot_ignored_key(keycode)) {
+            // On non-ignored keyup, consider the oneshot used.
+            if (*state == os_down_unused) {
+                *state = os_down_used;
+            } else if (*state == os_up_queued) {
                 reset_oneshot(state, mod);
-            }
-        } else {
-            if (!is_oneshot_ignored_key(keycode)) {
-                // On non-ignored keyup, consider the oneshot used.
-                switch (*state) {
-                case os_down_unused:
-                    *state = os_down_used;
-                    break;
-                case os_up_queued:
-                    reset_oneshot(state, mod);
-                    break;
-                default:
-                    break;
-                }
             }
         }
     }
 }
-
 
 
 
@@ -296,7 +285,8 @@ uint16_t last_keycode = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // TODO: Toggle some home-row lights based on the state.
-    update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
+    update_swapper(&cmd_tab_active, KC_LGUI, KC_TAB, CMD_TAB, keycode, record);
+    update_swapper(&cmd_grv_active, KC_LGUI, KC_GRV, CMD_GRV, keycode, record);
 
     update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record);
     update_oneshot(&os_shft_state, KC_LSFT, OS_HYPR, keycode, record);
