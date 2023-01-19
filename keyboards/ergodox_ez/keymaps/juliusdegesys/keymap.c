@@ -67,16 +67,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
-    XXXXXXX, KC_F4 , KC_F3 , KC_F2 , KC_F1,    KC_PLUS, KC_7, KC_8, KC_9, KC_ASTR,
-    XXXXXXX, KC_F8 , KC_F7 , KC_F6 , KC_F5,    KC_MINS, KC_4, KC_5, KC_6, KC_0   ,
-    XXXXXXX, KC_F12, KC_F11, KC_F10, KC_F9,    KC_SLSH, KC_1, KC_2, KC_3, KC_EQL ,
+    KC_F8 , KC_F7 , KC_F6 , KC_F5, XXXXXXX,    KC_PLUS, KC_7, KC_8, KC_9, KC_ASTR,
+    KC_F4 , KC_F3 , KC_F2 , KC_F1, XXXXXXX,    KC_MINS, KC_4, KC_5, KC_6, KC_0   ,
+    KC_F12, KC_F11, KC_F10, KC_F9, XXXXXXX,    KC_SLSH, KC_1, KC_2, KC_3, KC_EQL ,
                           _______, _______,    _______, _______
   ),
 };
 
 
 bool cmd_tab_active = false;
-bool cmd_grv_active = false;
 
 oneshot_state os_shft_state = os_up_unqueued;
 oneshot_state os_ctrl_state = os_up_unqueued;
@@ -254,39 +253,37 @@ void update_oneshot(
     }
 }
 
-
-
-void update_swapper(
-    bool *active,
-    uint16_t cmdish,
-    uint16_t tabish,
-    uint16_t trigger,
-    uint16_t keycode,
-    keyrecord_t *record
-) {
-    if (keycode == trigger) {
-        if (record->event.pressed) {
-            if (!*active) {
-                *active = true;
-                register_code(cmdish);
-            }
-            register_code(tabish);
-        } else {
-            unregister_code(tabish);
-            // Don't unregister cmdish until some other key is hit or released.
-        }
-    } else if (*active) {
-        unregister_code(cmdish);
-        *active = false;
-    }
-}
-
 uint16_t last_keycode = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    // TODO: Toggle some home-row lights based on the state.
-    update_swapper(&cmd_tab_active, KC_LGUI, KC_TAB, CMD_TAB, keycode, record);
-    update_swapper(&cmd_grv_active, KC_LGUI, KC_GRV, CMD_GRV, keycode, record);
+    if (keycode == CMD_TAB) {
+        if (record->event.pressed) {
+            if (!cmd_tab_active) {
+                cmd_tab_active = true;
+                register_code(KC_LGUI);
+            }
+            register_code(KC_TAB);
+        } else {
+            unregister_code(KC_TAB);
+        }
+    } else if (keycode == CMD_GRV) {
+        if (record->event.pressed) {
+            if (!cmd_tab_active) {
+                cmd_tab_active = true;
+                register_code(KC_LGUI);
+            }
+            register_code(KC_GRV);
+        } else {
+            unregister_code(KC_GRV);
+        }
+    } else if (keycode == LA_NAV) {
+       if (cmd_tab_active) {
+            if (!record->event.pressed) {
+                cmd_tab_active = false;
+                unregister_code(KC_LGUI);
+            }
+        }
+    }
 
     update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record);
     update_oneshot(&os_shft_state, KC_LSFT, OS_HYPR, keycode, record);
