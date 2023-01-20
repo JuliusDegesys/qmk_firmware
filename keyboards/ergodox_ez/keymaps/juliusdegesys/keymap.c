@@ -137,6 +137,9 @@ void set_layer_color(int layer) {
         float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
         rgb_matrix_set_color(i, f*rgb.r, f*rgb.g, f*rgb.b);
     }
+    // TODO: Use color inversions here. Would also be good to have a mapping
+    // from the LED index to the keyboard index so that we could auto-detect
+    // which keys are OS_CMD, etc.
     if (os_cmd_state != os_up_unqueued) {
         rgb_matrix_set_color(35, 255, 0, 0);
     }
