@@ -29,6 +29,8 @@ enum custom_keycodes {
 
     CMD_TAB, // Switch to next window         (cmd-tab)
     CMD_GRV, // Switch to next window of the same app (cmd-grv)
+    CTRL_TAB, // Switch to next tab
+    CTRL_SHIFT_TAB, // Switch to prev tab
 };
 
 enum layers {
@@ -61,9 +63,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT_ez34(
-    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(LSFT(KC_TAB)), KC_UP  , LCTL(KC_TAB), KC_ESC ,
-    OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT           , KC_DOWN, KC_RGHT     , KC_BSPC,
-    KC_UNDO, KC_CUT , KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)      , KC_TAB , KC_GRAVE    , KC_DEL ,
+    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, CTRL_SHIFT_TAB, KC_UP  , CTRL_TAB, KC_ESC ,
+    OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
+    KC_UNDO, KC_CUT , KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , KC_GRAVE, KC_DEL ,
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
@@ -76,6 +78,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 bool cmd_tab_active = false;
+bool ctrl_tab_active = false;
 
 oneshot_state os_shft_state = os_up_unqueued;
 oneshot_state os_ctrl_state = os_up_unqueued;
@@ -284,6 +287,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (!record->event.pressed) {
                 cmd_tab_active = false;
                 unregister_code(KC_LGUI);
+            }
+        }
+    }
+
+    if (keycode == CTRL_TAB) {
+        if (record->event.pressed) {
+            if (!ctrl_tab_active) {
+                ctrl_tab_active = true;
+                register_code(KC_LCTL);
+            }
+            register_code(KC_TAB);
+        } else {
+            unregister_code(KC_TAB);
+        }
+    } else if (keycode == CTRL_SHIFT_TAB) {
+        if (record->event.pressed) {
+            if (!ctrl_tab_active) {
+                ctrl_tab_active = true;
+                register_code(KC_LCTL);
+            }
+            register_code(KC_LSFT);
+            register_code(KC_TAB);
+        } else {
+            unregister_code(KC_TAB);
+            unregister_code(KC_LSFT);
+        }
+    } else if (keycode == LA_NAV) {
+       if (ctrl_tab_active) {
+            if (!record->event.pressed) {
+                ctrl_tab_active = false;
+                unregister_code(KC_LCTL);
             }
         }
     }
