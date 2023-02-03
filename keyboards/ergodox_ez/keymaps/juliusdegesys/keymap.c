@@ -69,9 +69,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
-    KC_F8 , KC_F7 , KC_F6 , KC_F5, KC_ASTR,    KC_PLUS, KC_7, KC_8, KC_9, KC_COLN,
+    KC_F8 , KC_F7 , KC_F6 , KC_F5, KC_PLUS,    KC_COLN, KC_7, KC_8, KC_9, KC_ASTR,
     KC_F4 , KC_F3 , KC_F2 , KC_F1, KC_EQL ,    KC_0   , KC_4, KC_5, KC_6, KC_BSPC,
-    KC_F12, KC_F11, KC_F10, KC_F9, KC_SLSH,    KC_MINS, KC_1, KC_2, KC_3, KC_DOT ,
+    KC_F12, KC_F11, KC_F10, KC_F9, KC_MINS,    KC_DOT , KC_1, KC_2, KC_3, KC_SLSH,
                           _______, _______,    _______, _______
   ),
 };
@@ -113,9 +113,9 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
                           GREEN,      CYAN
         ),
     [NUM] = LAYOUT_LED(
-        GREEN, GREEN, GREEN, GREEN, RED,      RED  , GREEN, GREEN, GREEN, CYAN,
+        GREEN, GREEN, GREEN, GREEN, RED,      CYAN , GREEN, GREEN, GREEN, RED ,
         GREEN, GREEN, GREEN, GREEN, RED,      GREEN, GREEN, GREEN, GREEN, PURP,
-        GREEN, GREEN, GREEN, GREEN, RED,      RED  , GREEN, GREEN, GREEN, CYAN,
+        GREEN, GREEN, GREEN, GREEN, RED,      CYAN , GREEN, GREEN, GREEN, RED ,
                                     RED,      PURP
         ),
 };
