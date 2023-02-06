@@ -42,10 +42,10 @@ enum layers {
 
 // Represents the four states a oneshot key can be in
 typedef enum {
+    os_up_unqueued, // Key is up and not queued -- default state
     os_down_unused, // Key is down and not used
-    os_down_used, // Key is down and used
-    os_up_unqueued, // Key is up and not queued
-    os_up_queued,  // Key is up and queued
+    os_up_queued,   // Key is up and queued
+    os_down_used,   // Key is down and used
 } oneshot_state;
 
 
