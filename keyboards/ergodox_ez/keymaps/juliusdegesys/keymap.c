@@ -6,15 +6,6 @@
 #define KC_COPY LGUI(KC_C)
 #define KC_PASTE LGUI(KC_V)
 
-#define ES_LESS_MAC KC_GRAVE
-#define ES_GRTR_MAC LSFT(KC_GRAVE)
-#define ES_BSLS_MAC ALGR(KC_6)
-#define NO_PIPE_ALT KC_GRAVE
-#define NO_BSLS_ALT KC_EQUAL
-#define LSA_T(kc) MT(MOD_LSFT | MOD_LALT, kc)
-#define BP_NDSH_MAC ALGR(KC_8)
-#define SE_SECT_MAC ALGR(KC_6)
-
 #define LA_SYM MO(SYM)
 #define LA_NAV MO(NAV)
 
