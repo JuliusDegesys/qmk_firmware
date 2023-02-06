@@ -56,7 +56,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [NAV] = LAYOUT_ez34(
     CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, CTRL_SHIFT_TAB, KC_UP  , CTRL_TAB, KC_ESC ,
     OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
-    KC_UNDO, KC_CUT , KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , KC_GRAVE, KC_DEL ,
+    KC_UNDO, KC_CUT , KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
@@ -94,7 +94,7 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
     [NAV] = LAYOUT_LED(
         PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
         PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
-        PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, PURP, PURP,
+        PURP, PURP, PURP, PURP, PURP,      PURP, PURP, PURP, OFF , PURP,
                                 CYAN,      GREEN
         ),
     [SYM] = LAYOUT_LED(
