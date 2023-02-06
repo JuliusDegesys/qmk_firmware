@@ -6,7 +6,12 @@
 
 #undef NKRO_ENABLE
 
+// USD_SUSPEND_WAKEUP_DELAY sets the number of milliseconds to pause after
+// sending a wakeup packet.  Disabled by default, you might want to set this to
+// 200 (or higher) if the keyboard does not wake up properly after suspending.
 #define USB_SUSPEND_WAKEUP_DELAY 0
+
+// 8 bits because each layer needs its own bit. So, 8bits=8-layer support
 #define LAYER_STATE_8BIT
 
 #define RGB_MATRIX_STARTUP_SPD 60
