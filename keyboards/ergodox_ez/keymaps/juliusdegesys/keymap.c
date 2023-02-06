@@ -48,7 +48,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                               LA_NAV, KC_LSFT,    KC_SPC, LA_SYM
   ),
   [SYM] = LAYOUT_ez34(
-    KC_TILD, KC_COMM, KC_DOT , KC_AMPR, KC_HASH,    KC_PLUS, KC_QUES, KC_EXLM, KC_AT  , KC_ASTR,
+    KC_TILD, KC_COMM, KC_DOT , KC_AMPR, KC_HASH,    KC_PLUS, KC_EXLM, KC_QUES, KC_AT  , KC_ASTR,
     KC_PIPE, KC_LCBR, KC_LBRC, KC_LPRN, KC_LT,      KC_GT  , KC_RPRN, KC_RBRC, KC_RCBR, KC_ESC ,
     KC_GRV , KC_UNDS, XXXXXXX, KC_BSLS, KC_EQL ,    KC_MINS, KC_PERC, KC_CIRC, KC_DLR , KC_SLSH,
                                _______, _______,    _______, _______
