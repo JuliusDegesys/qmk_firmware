@@ -48,9 +48,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                               LA_NAV, KC_LSFT,    KC_SPC, LA_SYM
   ),
   [SYM] = LAYOUT_ez34(
-    KC_TILD, KC_UNDS, KC_PLUS, KC_QUES, KC_PIPE,    XXXXXXX, KC_EXLM, KC_AT  , KC_HASH, KC_DLR ,
-    XXXXXXX, KC_LCBR, KC_LBRC, KC_LPRN, KC_UNDS,    XXXXXXX, KC_RPRN, KC_RBRC, KC_RCBR, KC_ESC ,
-    KC_GRV , KC_MINS, KC_EQL , KC_SLSH, KC_BSLS,    XXXXXXX, KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR,
+    KC_TILD, KC_COMM, KC_DOT , KC_AMPR, KC_HASH,    KC_PLUS, KC_QUES, KC_EXLM, KC_AT  , KC_ASTR,
+    KC_PIPE, KC_LCBR, KC_LBRC, KC_LPRN, KC_LT,      KC_GT  , KC_RPRN, KC_RBRC, KC_RCBR, KC_ESC ,
+    KC_GRV , KC_UNDS, XXXXXXX, KC_BSLS, KC_EQL ,    KC_MINS, KC_PERC, KC_CIRC, KC_DLR , KC_SLSH,
                                _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT_ez34(
@@ -60,9 +60,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
-    KC_F8 , KC_F7 , KC_F6 , KC_F5, KC_PLUS,    KC_COLN, KC_7, KC_8, KC_9, KC_ASTR,
-    KC_F4 , KC_F3 , KC_F2 , KC_F1, KC_EQL ,    KC_0   , KC_4, KC_5, KC_6, KC_BSPC,
-    KC_F12, KC_F11, KC_F10, KC_F9, KC_MINS,    KC_DOT , KC_1, KC_2, KC_3, KC_SLSH,
+    KC_F8 , KC_F7 , KC_F6 , KC_F5, KC_COLN,    KC_PLUS, KC_7, KC_8, KC_9, KC_ASTR,
+    KC_F4 , KC_F3 , KC_F2 , KC_F1, KC_DOT ,    KC_0   , KC_4, KC_5, KC_6, KC_BSPC,
+    KC_F12, KC_F11, KC_F10, KC_F9, KC_EQL ,    KC_MINS, KC_1, KC_2, KC_3, KC_SLSH,
                           _______, _______,    _______, _______
   ),
 };
@@ -98,9 +98,9 @@ const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3] = {
                                 CYAN,      GREEN
         ),
     [SYM] = LAYOUT_LED(
-        RED, RED, RED, RED, RED,      OFF, RED, RED, RED, RED,
-        OFF, RED, RED, RED, RED,      OFF, RED, RED, RED, RED,
-        RED, RED, RED, RED, RED,      OFF, RED, RED, RED, RED,
+        RED, RED, RED, RED, RED,      RED, RED, RED, RED, RED,
+        RED, RED, RED, RED, RED,      RED, RED, RED, RED, RED,
+        RED, RED, OFF, RED, RED,      RED, RED, RED, RED, RED,
                           GREEN,      CYAN
         ),
     [NUM] = LAYOUT_LED(
