@@ -1,1 +1,3 @@
+brew install qmk/qmk/qmk
+brew install arm-none-eabi-gcc
 qmk flash -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040 -bl uf2-split-right
