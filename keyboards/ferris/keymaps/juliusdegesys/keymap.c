@@ -47,13 +47,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                               LA_NAV, KC_LSFT,    KC_SPC, LA_SYM
   ),
   [SYM] = LAYOUT(
-    KC_TILD, KC_QUOT, KC_DQUO, KC_AMPR, KC_HASH,    KC_PLUS, KC_EXLM, KC_QUES, KC_AT  , KC_ASTR,
-    KC_PIPE, KC_LCBR, KC_LBRC, KC_LPRN, KC_LT,      KC_GT  , KC_RPRN, KC_RBRC, KC_RCBR, KC_ESC ,
-    KC_GRV , KC_UNDS, KC_COLN, KC_BSLS, KC_EQL ,    KC_MINS, KC_PERC, KC_CIRC, KC_DLR , KC_SLSH,
+    KC_GRV , KC_QUOT, KC_DQUO, KC_AMPR, KC_HASH,    KC_PLUS, KC_EXLM, KC_QUES, KC_AT  , KC_ASTR,
+    KC_PIPE, KC_LCBR, KC_LBRC, KC_LPRN, KC_LT,      KC_GT  , KC_RPRN, KC_RBRC, KC_RCBR, _______,
+    KC_TILD, KC_UNDS, KC_COLN, KC_BSLS, KC_EQL ,    KC_MINS, KC_PERC, KC_CIRC, KC_DLR , KC_SLSH,
                                _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT(
-    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, CTRL_SHIFT_TAB, KC_UP  , CTRL_TAB, KC_ESC ,
+    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, CTRL_SHIFT_TAB, KC_UP  , CTRL_TAB, _______,
     OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
     KC_UNDO,  KC_CUT, KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , _______ , KC_DEL ,
                                         _______   , _______         ,    _______, _______
