@@ -16,3 +16,12 @@
 
 // 8 bits because each layer needs its own bit. So, 8bits=8-layer support
 #define LAYER_STATE_8BIT
+
+// Allow plugging into either side.
+#define EE_HANDS
+
+// Reduce input lag
+#define USB_POLLING_INTERVAL_MS 1
+
+// Faster serial communication between halves
+#define SERIAL_USART_SPEED 460800
