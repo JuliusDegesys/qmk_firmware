@@ -70,6 +70,29 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 bool cmd_tab_active = false;
 bool ctrl_tab_active = false;
 
+#ifdef CONSOLE_ENABLE
+void keyboard_post_init_user(void) {
+    // Print custom keycode mappings so the analysis script can decode them.
+    uprintf("MAP:0x%04X:OS_SHFT\n", OS_SHFT);
+    uprintf("MAP:0x%04X:OS_CTRL\n", OS_CTRL);
+    uprintf("MAP:0x%04X:OS_ALT\n", OS_ALT);
+    uprintf("MAP:0x%04X:OS_CMD\n", OS_CMD);
+    uprintf("MAP:0x%04X:OS_MEH\n", OS_MEH);
+    uprintf("MAP:0x%04X:OS_HYPR\n", OS_HYPR);
+    uprintf("MAP:0x%04X:CMD_TAB\n", CMD_TAB);
+    uprintf("MAP:0x%04X:CMD_GRV\n", CMD_GRV);
+    uprintf("MAP:0x%04X:CTRL_TAB\n", CTRL_TAB);
+    uprintf("MAP:0x%04X:CS_TAB\n", CTRL_SHIFT_TAB);
+    uprintf("MAP:0x%04X:BOOT\n", QK_BOOT);
+    uprintf("MAP:0x%04X:MO_NAV\n", LA_NAV);
+    uprintf("MAP:0x%04X:MO_SYM\n", LA_SYM);
+    uprintf("MAP:0x%04X:Cmd-Z\n", KC_UNDO);
+    uprintf("MAP:0x%04X:Cmd-X\n", KC_CUT);
+    uprintf("MAP:0x%04X:Cmd-C\n", KC_COPY);
+    uprintf("MAP:0x%04X:Cmd-V\n", KC_PASTE);
+}
+#endif
+
 oneshot_state os_shft_state = os_up_unqueued;
 oneshot_state os_ctrl_state = os_up_unqueued;
 oneshot_state os_alt_state = os_up_unqueued;
@@ -163,6 +186,16 @@ void update_oneshot(
 uint16_t last_keycode = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef CONSOLE_ENABLE
+    if (record->event.pressed) {
+        uprintf("KL:%u:%u:%u:0x%04X\n",
+            get_highest_layer(layer_state),
+            record->event.key.row,
+            record->event.key.col,
+            keycode);
+    }
+#endif
+
     if (keycode == CMD_TAB) {
         if (record->event.pressed) {
             if (!cmd_tab_active) {
@@ -254,5 +287,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    return update_tri_layer_state(state, SYM, NAV, NUM);
+    state = update_tri_layer_state(state, SYM, NAV, NUM);
+#ifdef CONSOLE_ENABLE
+    uprintf("LL:%u\n", get_highest_layer(state));
+#endif
+    return state;
 }
