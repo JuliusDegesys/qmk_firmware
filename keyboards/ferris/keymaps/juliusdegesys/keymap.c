@@ -188,11 +188,20 @@ uint16_t last_keycode = 0;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef CONSOLE_ENABLE
     if (record->event.pressed) {
-        uprintf("KL:%u:%u:%u:0x%04X\n",
+        uprintf("KD:%u:%u:%u:0x%04X:0x%02X:%lu\n",
             get_highest_layer(layer_state),
             record->event.key.row,
             record->event.key.col,
-            keycode);
+            keycode,
+            get_mods(),
+            (unsigned long)timer_read32());
+    } else {
+        uprintf("KU:%u:%u:%u:0x%04X:%lu\n",
+            get_highest_layer(layer_state),
+            record->event.key.row,
+            record->event.key.col,
+            keycode,
+            (unsigned long)timer_read32());
     }
 #endif
 

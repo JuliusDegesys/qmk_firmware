@@ -74,7 +74,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     line = f.readline()
                     if line:
                         stripped = line.strip()
-                        if "KL:" in stripped or "LL:" in stripped:
+                        if "KD:" in stripped or "KU:" in stripped or "LL:" in stripped:
                             self.wfile.write(f"data: {stripped}\n\n".encode())
                             self.wfile.flush()
                     else:

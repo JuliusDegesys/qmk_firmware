@@ -338,12 +338,13 @@ function parseLog(text) {
   }
 }
 
-// Parse a single log line and increment counts. Returns the position if on active layer.
+// Parse a single log line and increment counts on keydown (KD).
+// Ignores KU (keyup) for heatmap counts.
 function parseLine(line) {
-  const klIdx = line.indexOf('KL:');
-  if (klIdx === -1) return null;
-  const klPart = line.substring(klIdx);
-  const parts = klPart.split(':');
+  const idx = line.indexOf('KD:');
+  if (idx === -1) return null;
+  const part = line.substring(idx);
+  const parts = part.split(':');
   if (parts.length >= 5) {
     const layer = parseInt(parts[1]);
     const row = parseInt(parts[2]);
