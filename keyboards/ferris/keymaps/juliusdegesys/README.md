@@ -93,6 +93,26 @@ python3 analyze_usage.py ~/keylog.txt
 
 This prints per-layer breakdowns with keycode names and hit counts.
 
+### Log format
+
+The firmware emits three event types via `uprintf` when `CONSOLE_ENABLE = yes`:
+
+```
+KD:<layer>:<row>:<col>:0x<keycode>:0x<mods>:<timestamp>   keydown
+KU:<layer>:<row>:<col>:0x<keycode>:<timestamp>             keyup
+LL:<layer>                                                 layer change
+```
+
+| Field | Description |
+|---|---|
+| `layer` | Active layer (0=BASE, 1=SYM, 2=NAV, 3=NUM) |
+| `row`, `col` | Matrix position (rows 0-3 = left half, 4-7 = right half) |
+| `keycode` | QMK keycode in hex |
+| `mods` | Active modifier bitmask from `get_mods()` (e.g. 0x08 = Cmd) |
+| `timestamp` | Milliseconds from `timer_read32()` (wraps at ~49 days) |
+
+The QMK console prefixes each line (e.g. `DPB:Ferris sweep:1: KD:...`). The parsers strip this prefix automatically.
+
 ### Disabling logging
 
 To remove the logging overhead, set `CONSOLE_ENABLE = no` in `rules.mk` and reflash.
