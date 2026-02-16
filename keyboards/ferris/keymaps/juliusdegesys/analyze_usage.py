@@ -90,14 +90,13 @@ def main():
                     custom_map[kc] = parts[2]
                 except ValueError:
                     pass
-        elif "KL:" in line:
-            # Strip QMK console prefix (e.g. "DPB:Ferris sweep:1: KL:...")
-            kl_idx = line.index("KL:")
-            kl_part = line[kl_idx:]
-            parts = kl_part.split(":")
+        elif "KD:" in line:
+            # KD:layer:row:col:0xKC:0xMODS:timestamp — keydown only
+            kd_idx = line.index("KD:")
+            kd_part = line[kd_idx:]
+            parts = kd_part.split(":")
             try:
-                if len(parts) == 5:
-                    # New format: KL:layer:row:col:0xKC
+                if len(parts) >= 7:
                     layer = int(parts[1])
                     row = int(parts[2])
                     col = int(parts[3])
@@ -105,12 +104,6 @@ def main():
                     layer_counts[layer][kc] += 1
                     pos_counts[layer][f"{row},{col}"] += 1
                     has_position_data = True
-                    total += 1
-                elif len(parts) == 3:
-                    # Old format: KL:layer:0xKC
-                    layer = int(parts[1])
-                    kc = int(parts[2], 16)
-                    layer_counts[layer][kc] += 1
                     total += 1
             except ValueError:
                 pass
