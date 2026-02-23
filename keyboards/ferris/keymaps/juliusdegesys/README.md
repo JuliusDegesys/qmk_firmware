@@ -16,7 +16,7 @@ Based on [callum's](https://github.com/callum-oakley/qmk_firmware/tree/master/us
 - Custom oneshot modifiers (Shift, Ctrl, Alt, Cmd, Meh, Hyper) without timers
 - Cmd-Tab / Cmd-Grave window switching (Cmd stays held while NAV layer is active)
 - Ctrl-Tab / Ctrl-Shift-Tab tab switching (same hold behavior)
-- Double-tap NAV to cancel all queued oneshot mods
+- Oneshot mods expire after 2 seconds if unused (ESC still cancels immediately)
 - `QK_BOOT` on the NUM layer to enter bootloader without double-tapping reset
 - Keypress and layer-change logging via QMK console (when `CONSOLE_ENABLE = yes`)
 - Real-time heatmap visualizer showing all 4 layers simultaneously
