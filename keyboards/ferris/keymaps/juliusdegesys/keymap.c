@@ -99,6 +99,11 @@ oneshot_state os_alt_state = os_up_unqueued;
 oneshot_state os_cmd_state = os_up_unqueued;
 oneshot_state os_hypr_state = os_up_unqueued;
 
+uint32_t os_shft_queued_at = 0;
+uint32_t os_ctrl_queued_at = 0;
+uint32_t os_alt_queued_at = 0;
+uint32_t os_cmd_queued_at = 0;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Oneshot mod implementation
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +155,8 @@ void update_oneshot(
     uint16_t mod,
     uint16_t trigger,
     uint16_t keycode,
-    keyrecord_t *record
+    keyrecord_t *record,
+    uint32_t *queued_at
 ) {
     bool key_down = record->event.pressed;
     if (key_down) {
@@ -168,6 +174,7 @@ void update_oneshot(
             if (*state == os_down_unused) {
                 // If we didn't use the mod while trigger was held, queue it.
                 *state = os_up_queued;
+                *queued_at = timer_read32();
             } else if (*state == os_down_used) {
                 // If we did use the mod while trigger was held, unregister it.
                 reset_oneshot(state, mod);
@@ -182,8 +189,6 @@ void update_oneshot(
         }
     }
 }
-
-uint16_t last_keycode = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef CONSOLE_ENABLE
@@ -265,35 +270,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
-    update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record);
-    update_oneshot(&os_shft_state, KC_LSFT, OS_HYPR, keycode, record);
-    update_oneshot(&os_shft_state, KC_LSFT, OS_MEH, keycode, record);
+    update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record, &os_shft_queued_at);
+    update_oneshot(&os_shft_state, KC_LSFT, OS_HYPR, keycode, record, &os_shft_queued_at);
+    update_oneshot(&os_shft_state, KC_LSFT, OS_MEH,  keycode, record, &os_shft_queued_at);
 
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL, keycode, record);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_HYPR, keycode, record);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_MEH, keycode, record);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL, keycode, record, &os_ctrl_queued_at);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OS_HYPR, keycode, record, &os_ctrl_queued_at);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OS_MEH,  keycode, record, &os_ctrl_queued_at);
 
-    update_oneshot(&os_alt_state, KC_LALT, OS_ALT, keycode, record);
-    update_oneshot(&os_alt_state, KC_LALT, OS_HYPR, keycode, record);
-    update_oneshot(&os_alt_state, KC_LALT, OS_MEH, keycode, record);
+    update_oneshot(&os_alt_state, KC_LALT, OS_ALT,  keycode, record, &os_alt_queued_at);
+    update_oneshot(&os_alt_state, KC_LALT, OS_HYPR, keycode, record, &os_alt_queued_at);
+    update_oneshot(&os_alt_state, KC_LALT, OS_MEH,  keycode, record, &os_alt_queued_at);
 
-    update_oneshot(&os_cmd_state, KC_LCMD, OS_CMD, keycode, record);
-    update_oneshot(&os_cmd_state, KC_LCMD, OS_HYPR, keycode, record);
-
-    if (keycode == LA_NAV && record->event.pressed && last_keycode == LA_NAV) {
-        reset_oneshot(&os_shft_state, KC_LSFT);
-        reset_oneshot(&os_ctrl_state, KC_LCTL);
-        reset_oneshot(&os_alt_state, KC_LALT);
-        reset_oneshot(&os_cmd_state, KC_LCMD);
-    }
-
-    if (record->event.pressed) {
-        last_keycode = keycode;
-    }
+    update_oneshot(&os_cmd_state, KC_LCMD, OS_CMD,  keycode, record, &os_cmd_queued_at);
+    update_oneshot(&os_cmd_state, KC_LCMD, OS_HYPR, keycode, record, &os_cmd_queued_at);
 
     return true;
 }
 
+
+#define ONESHOT_TIMEOUT 2000
+
+void matrix_scan_user(void) {
+    if (os_shft_state == os_up_queued && timer_elapsed32(os_shft_queued_at) > ONESHOT_TIMEOUT) {
+        reset_oneshot(&os_shft_state, KC_LSFT);
+    }
+    if (os_ctrl_state == os_up_queued && timer_elapsed32(os_ctrl_queued_at) > ONESHOT_TIMEOUT) {
+        reset_oneshot(&os_ctrl_state, KC_LCTL);
+    }
+    if (os_alt_state == os_up_queued && timer_elapsed32(os_alt_queued_at) > ONESHOT_TIMEOUT) {
+        reset_oneshot(&os_alt_state, KC_LALT);
+    }
+    if (os_cmd_state == os_up_queued && timer_elapsed32(os_cmd_queued_at) > ONESHOT_TIMEOUT) {
+        reset_oneshot(&os_cmd_state, KC_LCMD);
+    }
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     state = update_tri_layer_state(state, SYM, NAV, NUM);
