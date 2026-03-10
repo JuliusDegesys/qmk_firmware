@@ -19,8 +19,6 @@ enum custom_keycodes {
 
     CMD_TAB, // Switch to next window         (cmd-tab)
     CMD_GRV, // Switch to next window of the same app (cmd-grv)
-    CTRL_TAB, // Switch to next tab
-    CTRL_SHIFT_TAB, // Switch to prev tab
 };
 
 enum layers {
@@ -53,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT(
-    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, CTRL_SHIFT_TAB, KC_UP  , CTRL_TAB, XXXXXXX,
+    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(KC_PGUP) , KC_UP  , LCTL(KC_PGDN), XXXXXXX,
     OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
     KC_UNDO,  KC_CUT, KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
                                         _______   , _______         ,    _______, _______
@@ -68,7 +66,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 bool cmd_tab_active = false;
-bool ctrl_tab_active = false;
 
 #ifdef CONSOLE_ENABLE
 void keyboard_post_init_user(void) {
@@ -81,8 +78,8 @@ void keyboard_post_init_user(void) {
     uprintf("MAP:0x%04X:OS_HYPR\n", OS_HYPR);
     uprintf("MAP:0x%04X:CMD_TAB\n", CMD_TAB);
     uprintf("MAP:0x%04X:CMD_GRV\n", CMD_GRV);
-    uprintf("MAP:0x%04X:CTRL_TAB\n", CTRL_TAB);
-    uprintf("MAP:0x%04X:CS_TAB\n", CTRL_SHIFT_TAB);
+    uprintf("MAP:0x%04X:CTRL_PGUP\n", LCTL(KC_PGUP));
+    uprintf("MAP:0x%04X:CTRL_PGDN\n", LCTL(KC_PGDN));
     uprintf("MAP:0x%04X:BOOT\n", QK_BOOT);
     uprintf("MAP:0x%04X:MO_NAV\n", LA_NAV);
     uprintf("MAP:0x%04X:MO_SYM\n", LA_SYM);
@@ -235,37 +232,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (!record->event.pressed) {
                 cmd_tab_active = false;
                 unregister_code(KC_LGUI);
-            }
-        }
-    }
-
-    if (keycode == CTRL_TAB) {
-        if (record->event.pressed) {
-            if (!ctrl_tab_active) {
-                ctrl_tab_active = true;
-                register_code(KC_LCTL);
-            }
-            register_code(KC_TAB);
-        } else {
-            unregister_code(KC_TAB);
-        }
-    } else if (keycode == CTRL_SHIFT_TAB) {
-        if (record->event.pressed) {
-            if (!ctrl_tab_active) {
-                ctrl_tab_active = true;
-                register_code(KC_LCTL);
-            }
-            register_code(KC_LSFT);
-            register_code(KC_TAB);
-        } else {
-            unregister_code(KC_TAB);
-            unregister_code(KC_LSFT);
-        }
-    } else if (keycode == LA_NAV) {
-       if (ctrl_tab_active) {
-            if (!record->event.pressed) {
-                ctrl_tab_active = false;
-                unregister_code(KC_LCTL);
             }
         }
     }
