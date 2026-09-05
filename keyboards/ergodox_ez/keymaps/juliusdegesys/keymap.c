@@ -1,22 +1,22 @@
 #include QMK_KEYBOARD_H
 #include "version.h"
 
-#define KC_UNDO LGUI(KC_Z)
-#define KC_CUT LGUI(KC_X)
-#define KC_COPY LGUI(KC_C)
-#define KC_PASTE LGUI(KC_V)
+#define CMD_UNDO LGUI(KC_Z)
+#define CMD_CUT LGUI(KC_X)
+#define CMD_COPY LGUI(KC_C)
+#define CMD_PASTE LGUI(KC_V)
 
 #define LA_SYM MO(SYM)
 #define LA_NAV MO(NAV)
 
 enum custom_keycodes {
     // Custom oneshot mod implementation with no timers.
-    OS_SHFT = EZ_SAFE_RANGE,
-    OS_CTRL,
-    OS_ALT,
-    OS_CMD,
-    OS_MEH,
-    OS_HYPR,
+    OSK_SHFT = SAFE_RANGE,
+    OSK_CTRL,
+    OSK_ALT,
+    OSK_CMD,
+    OSK_MEH,
+    OSK_HYPR,
 
     CMD_TAB, // Switch to next window         (cmd-tab)
     CMD_GRV, // Switch to next window of the same app (cmd-grv)
@@ -55,8 +55,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   [NAV] = LAYOUT_ez34(
     CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, CTRL_SHIFT_TAB, KC_UP  , CTRL_TAB, KC_ESC ,
-    OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
-    KC_UNDO, KC_CUT , KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
+    OSK_SHFT, OSK_CTRL, OSK_ALT          , OSK_CMD    , OSK_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
+    CMD_UNDO, CMD_CUT , CMD_COPY         , CMD_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT_ez34(
@@ -133,7 +133,7 @@ void set_layer_color(int layer) {
     }
     // TODO: Use color inversions here. Would also be good to have a mapping
     // from the LED index to the keyboard index so that we could auto-detect
-    // which keys are OS_CMD, etc.
+    // which keys are OSK_CMD, etc.
     if (os_cmd_state != os_up_unqueued) {
         rgb_matrix_set_color(35, 255, 0, 0);
     }
@@ -193,11 +193,11 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
     case LA_SYM:
     case LA_NAV:
     case KC_LSFT:
-    case OS_SHFT:
-    case OS_CTRL:
-    case OS_ALT:
-    case OS_CMD:
-    case OS_HYPR:
+    case OSK_SHFT:
+    case OSK_CTRL:
+    case OSK_ALT:
+    case OSK_CMD:
+    case OSK_HYPR:
         return true;
     default:
         return false;
@@ -313,20 +313,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
-    update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record);
-    update_oneshot(&os_shft_state, KC_LSFT, OS_HYPR, keycode, record);
-    update_oneshot(&os_shft_state, KC_LSFT, OS_MEH, keycode, record);
+    update_oneshot(&os_shft_state, KC_LSFT, OSK_SHFT, keycode, record);
+    update_oneshot(&os_shft_state, KC_LSFT, OSK_HYPR, keycode, record);
+    update_oneshot(&os_shft_state, KC_LSFT, OSK_MEH, keycode, record);
 
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL, keycode, record);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_HYPR, keycode, record);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_MEH, keycode, record);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OSK_CTRL, keycode, record);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OSK_HYPR, keycode, record);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OSK_MEH, keycode, record);
 
-    update_oneshot(&os_alt_state, KC_LALT, OS_ALT, keycode, record);
-    update_oneshot(&os_alt_state, KC_LALT, OS_HYPR, keycode, record);
-    update_oneshot(&os_alt_state, KC_LALT, OS_MEH, keycode, record);
+    update_oneshot(&os_alt_state, KC_LALT, OSK_ALT, keycode, record);
+    update_oneshot(&os_alt_state, KC_LALT, OSK_HYPR, keycode, record);
+    update_oneshot(&os_alt_state, KC_LALT, OSK_MEH, keycode, record);
 
-    update_oneshot(&os_cmd_state, KC_LCMD, OS_CMD, keycode, record);
-    update_oneshot(&os_cmd_state, KC_LCMD, OS_HYPR, keycode, record);
+    update_oneshot(&os_cmd_state, KC_LCMD, OSK_CMD, keycode, record);
+    update_oneshot(&os_cmd_state, KC_LCMD, OSK_HYPR, keycode, record);
 
     if (keycode == LA_NAV && record->event.pressed && last_keycode == LA_NAV) {
         reset_oneshot(&os_shft_state, KC_LSFT);
