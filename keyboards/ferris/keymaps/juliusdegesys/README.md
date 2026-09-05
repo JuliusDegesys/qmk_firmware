@@ -32,6 +32,15 @@ brew install qmk/qmk/qmk
 brew install arm-none-eabi-gcc
 ```
 
+### Troubleshooting
+
+If the compiler aborts with `Library not loaded: .../libisl`, `libmpc`, or `libmpfr`, the
+GCC 8 bottle's dependencies were removed (for example by `brew autoremove`). Reinstall them:
+
+```bash
+brew install gmp isl libmpc mpfr
+```
+
 ### First time setup (EE_HANDS)
 
 Flash each half separately so the controller remembers which side it is:
