@@ -2,7 +2,7 @@
 
 A 34-key Dvorak layout for the Ferris Sweep with two Adafruit KB2040 controllers.
 
-Based on [callum's](https://github.com/callum-oakley/qmk_firmware/tree/master/users/callum) oneshot mod approach — custom oneshot implementation with no timers.
+Based on [callum's](https://github.com/callum-oakley/qmk_firmware/tree/master/users/callum) oneshot mod approach — custom oneshot implementation with no tap-hold timing. Queued mods expire after 2 seconds.
 
 ## Layers
 
@@ -13,7 +13,7 @@ Based on [callum's](https://github.com/callum-oakley/qmk_firmware/tree/master/us
 
 ## Features
 
-- Custom oneshot modifiers (Shift, Ctrl, Alt, Cmd, Meh, Hyper) without timers
+- Custom oneshot modifiers (Shift, Ctrl, Alt, Cmd, Meh, Hyper) with no tap-hold timing
 - Cmd-Tab / Cmd-Grave window switching (Cmd stays held while NAV layer is active)
 - Ctrl-Tab / Ctrl-Shift-Tab tab switching (same hold behavior)
 - Oneshot mods expire after 2 seconds if unused (ESC still cancels immediately)
