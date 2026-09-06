@@ -1,21 +1,23 @@
 #include QMK_KEYBOARD_H
 
-#define KC_UNDO LGUI(KC_Z)
-#define KC_CUT LGUI(KC_X)
-#define KC_COPY LGUI(KC_C)
-#define KC_PASTE LGUI(KC_V)
+// macOS clipboard shortcuts. Not named KC_* because QMK has KC_UNDO etc.
+#define CMD_UNDO LGUI(KC_Z)
+#define CMD_CUT LGUI(KC_X)
+#define CMD_COPY LGUI(KC_C)
+#define CMD_PASTE LGUI(KC_V)
 
 #define LA_SYM MO(SYM)
 #define LA_NAV MO(NAV)
 
 enum custom_keycodes {
-    // Custom oneshot mod implementation with no timers.
-    OS_SHFT = SAFE_RANGE,
-    OS_CTRL,
-    OS_ALT,
-    OS_CMD,
-    OS_MEH,
-    OS_HYPR,
+    // Custom oneshot mod implementation. Prefixed OSK_ because QMK defines
+    // OS_MEH and OS_HYPR itself (as timed OSM() keycodes).
+    OSK_SHFT = SAFE_RANGE,
+    OSK_CTRL,
+    OSK_ALT,
+    OSK_CMD,
+    OSK_MEH,
+    OSK_HYPR,
 
     CMD_TAB, // Switch to next window         (cmd-tab)
     CMD_GRV, // Switch to next window of the same app (cmd-grv)
@@ -52,8 +54,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
   [NAV] = LAYOUT(
     CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(KC_PGUP) , KC_UP  , LCTL(KC_PGDN), XXXXXXX,
-    OS_SHFT, OS_CTRL, OS_ALT          , OS_CMD    , OS_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
-    KC_UNDO,  KC_CUT, KC_COPY         , KC_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
+    OSK_SHFT, OSK_CTRL, OSK_ALT          , OSK_CMD    , OSK_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
+    CMD_UNDO,  CMD_CUT, CMD_COPY         , CMD_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
                                         _______   , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT(
@@ -70,12 +72,12 @@ bool cmd_tab_active = false;
 #ifdef CONSOLE_ENABLE
 void keyboard_post_init_user(void) {
     // Print custom keycode mappings so the analysis script can decode them.
-    uprintf("MAP:0x%04X:OS_SHFT\n", OS_SHFT);
-    uprintf("MAP:0x%04X:OS_CTRL\n", OS_CTRL);
-    uprintf("MAP:0x%04X:OS_ALT\n", OS_ALT);
-    uprintf("MAP:0x%04X:OS_CMD\n", OS_CMD);
-    uprintf("MAP:0x%04X:OS_MEH\n", OS_MEH);
-    uprintf("MAP:0x%04X:OS_HYPR\n", OS_HYPR);
+    uprintf("MAP:0x%04X:OS_SHFT\n", OSK_SHFT);
+    uprintf("MAP:0x%04X:OS_CTRL\n", OSK_CTRL);
+    uprintf("MAP:0x%04X:OS_ALT\n", OSK_ALT);
+    uprintf("MAP:0x%04X:OS_CMD\n", OSK_CMD);
+    uprintf("MAP:0x%04X:OS_MEH\n", OSK_MEH);
+    uprintf("MAP:0x%04X:OS_HYPR\n", OSK_HYPR);
     uprintf("MAP:0x%04X:CMD_TAB\n", CMD_TAB);
     uprintf("MAP:0x%04X:CMD_GRV\n", CMD_GRV);
     uprintf("MAP:0x%04X:CTRL_PGUP\n", LCTL(KC_PGUP));
@@ -83,10 +85,10 @@ void keyboard_post_init_user(void) {
     uprintf("MAP:0x%04X:BOOT\n", QK_BOOT);
     uprintf("MAP:0x%04X:MO_NAV\n", LA_NAV);
     uprintf("MAP:0x%04X:MO_SYM\n", LA_SYM);
-    uprintf("MAP:0x%04X:Cmd-Z\n", KC_UNDO);
-    uprintf("MAP:0x%04X:Cmd-X\n", KC_CUT);
-    uprintf("MAP:0x%04X:Cmd-C\n", KC_COPY);
-    uprintf("MAP:0x%04X:Cmd-V\n", KC_PASTE);
+    uprintf("MAP:0x%04X:Cmd-Z\n", CMD_UNDO);
+    uprintf("MAP:0x%04X:Cmd-X\n", CMD_CUT);
+    uprintf("MAP:0x%04X:Cmd-C\n", CMD_COPY);
+    uprintf("MAP:0x%04X:Cmd-V\n", CMD_PASTE);
 }
 #endif
 
@@ -128,11 +130,11 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
     case LA_SYM:
     case LA_NAV:
     case KC_LSFT:
-    case OS_SHFT:
-    case OS_CTRL:
-    case OS_ALT:
-    case OS_CMD:
-    case OS_HYPR:
+    case OSK_SHFT:
+    case OSK_CTRL:
+    case OSK_ALT:
+    case OSK_CMD:
+    case OSK_HYPR:
         return true;
     default:
         return false;
@@ -236,20 +238,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
-    update_oneshot(&os_shft_state, KC_LSFT, OS_SHFT, keycode, record, &os_shft_queued_at);
-    update_oneshot(&os_shft_state, KC_LSFT, OS_HYPR, keycode, record, &os_shft_queued_at);
-    update_oneshot(&os_shft_state, KC_LSFT, OS_MEH,  keycode, record, &os_shft_queued_at);
+    update_oneshot(&os_shft_state, KC_LSFT, OSK_SHFT, keycode, record, &os_shft_queued_at);
+    update_oneshot(&os_shft_state, KC_LSFT, OSK_HYPR, keycode, record, &os_shft_queued_at);
+    update_oneshot(&os_shft_state, KC_LSFT, OSK_MEH,  keycode, record, &os_shft_queued_at);
 
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_CTRL, keycode, record, &os_ctrl_queued_at);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_HYPR, keycode, record, &os_ctrl_queued_at);
-    update_oneshot(&os_ctrl_state, KC_LCTL, OS_MEH,  keycode, record, &os_ctrl_queued_at);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OSK_CTRL, keycode, record, &os_ctrl_queued_at);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OSK_HYPR, keycode, record, &os_ctrl_queued_at);
+    update_oneshot(&os_ctrl_state, KC_LCTL, OSK_MEH,  keycode, record, &os_ctrl_queued_at);
 
-    update_oneshot(&os_alt_state, KC_LALT, OS_ALT,  keycode, record, &os_alt_queued_at);
-    update_oneshot(&os_alt_state, KC_LALT, OS_HYPR, keycode, record, &os_alt_queued_at);
-    update_oneshot(&os_alt_state, KC_LALT, OS_MEH,  keycode, record, &os_alt_queued_at);
+    update_oneshot(&os_alt_state, KC_LALT, OSK_ALT,  keycode, record, &os_alt_queued_at);
+    update_oneshot(&os_alt_state, KC_LALT, OSK_HYPR, keycode, record, &os_alt_queued_at);
+    update_oneshot(&os_alt_state, KC_LALT, OSK_MEH,  keycode, record, &os_alt_queued_at);
 
-    update_oneshot(&os_cmd_state, KC_LCMD, OS_CMD,  keycode, record, &os_cmd_queued_at);
-    update_oneshot(&os_cmd_state, KC_LCMD, OS_HYPR, keycode, record, &os_cmd_queued_at);
+    update_oneshot(&os_cmd_state, KC_LCMD, OSK_CMD,  keycode, record, &os_cmd_queued_at);
+    update_oneshot(&os_cmd_state, KC_LCMD, OSK_HYPR, keycode, record, &os_cmd_queued_at);
 
     return true;
 }
