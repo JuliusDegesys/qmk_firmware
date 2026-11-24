@@ -16,7 +16,7 @@ enum custom_keycodes {
     OSK_CTRL,
     OSK_ALT,
     OSK_CMD,
-    OSK_MEH,
+    OSK_MEH, // Not currently on any layer
     OSK_HYPR,
 
     CMD_TAB, // Switch to next window         (cmd-tab)
@@ -53,10 +53,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                _______, _______,    _______, _______
   ),
   [NAV] = LAYOUT(
-    CMD_GRV, CMD_TAB, LGUI(LSFT(KC_T)), LGUI(KC_T), LGUI(KC_SPACE)  ,    KC_PGUP, LCTL(KC_PGUP) , KC_UP  , LCTL(KC_PGDN), XXXXXXX,
-    OSK_SHFT, OSK_CTRL, OSK_ALT          , OSK_CMD    , OSK_HYPR         ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT , KC_BSPC,
-    CMD_UNDO,  CMD_CUT, CMD_COPY         , CMD_PASTE  , LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX , KC_DEL ,
-                                        _______   , _______         ,    _______, _______
+    CMD_GRV , CMD_TAB , XXXXXXX , XXXXXXX  , XXXXXXX         ,    KC_PGUP, LCTL(KC_PGUP) , KC_UP  , LCTL(KC_PGDN), XXXXXXX,
+    OSK_SHFT, OSK_CTRL, OSK_ALT , OSK_CMD  , OSK_HYPR        ,    KC_ENT , KC_LEFT       , KC_DOWN, KC_RGHT      , KC_BSPC,
+    CMD_UNDO, CMD_CUT , CMD_COPY, CMD_PASTE, LGUI(LSFT(KC_4)),    KC_PGDN, LSFT(KC_TAB)  , KC_TAB , XXXXXXX      , KC_DEL ,
+                                  _______  , _______         ,    _______, _______
   ),
   [NUM] = LAYOUT(
     KC_F1  , KC_F2 , KC_F3 , KC_F4, _______,    KC_PLUS, KC_7, KC_8, KC_9, KC_ASTR,
@@ -68,6 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 bool cmd_tab_active = false;
+bool cmd_grv_active = false;
 
 #ifdef CONSOLE_ENABLE
 void keyboard_post_init_user(void) {
@@ -134,6 +135,7 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
     case OSK_CTRL:
     case OSK_ALT:
     case OSK_CMD:
+    case OSK_MEH:
     case OSK_HYPR:
         return true;
     default:
@@ -211,7 +213,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (keycode == CMD_TAB) {
         if (record->event.pressed) {
-            if (!cmd_tab_active) {
+            if (!cmd_tab_active && !cmd_grv_active) {
                 cmd_tab_active = true;
                 register_code(KC_LGUI);
             }
@@ -221,20 +223,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     } else if (keycode == CMD_GRV) {
         if (record->event.pressed) {
-            if (!cmd_tab_active) {
-                cmd_tab_active = true;
+            if (!cmd_tab_active && !cmd_grv_active) {
+                cmd_grv_active = true;
                 register_code(KC_LGUI);
             }
             register_code(KC_GRV);
         } else {
             unregister_code(KC_GRV);
         }
-    } else if (keycode == LA_NAV) {
-       if (cmd_tab_active) {
-            if (!record->event.pressed) {
-                cmd_tab_active = false;
-                unregister_code(KC_LGUI);
-            }
+    } else if (keycode == LA_NAV && !record->event.pressed) {
+        // Release Cmd held by Cmd+Tab / Cmd+` when NAV is released
+        if (cmd_tab_active || cmd_grv_active) {
+            cmd_tab_active = false;
+            cmd_grv_active = false;
+            unregister_code(KC_LGUI);
         }
     }
 
