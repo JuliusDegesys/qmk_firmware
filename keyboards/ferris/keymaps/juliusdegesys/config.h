@@ -25,3 +25,8 @@
 
 // Faster serial communication between halves
 #define SERIAL_USART_SPEED 460800
+
+// Reboot a half that thinks it's the slave if it hears nothing from the
+// master. Recovers when the dock powers the keyboard before the host is
+// connected and both halves end up as slaves.
+#define SPLIT_WATCHDOG_ENABLE
