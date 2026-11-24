@@ -90,12 +90,12 @@ The firmware logs every keypress and layer change to the QMK console. A web-base
 ### Setup
 
 ```bash
-# Terminal 1 — capture keylog from the keyboard:
-qmk console | tee ~/keylog.txt
-
-# Terminal 2 — start the visualizer (opens browser automatically):
+# Captures keypresses (qmk console -> ~/keylog.txt) and serves the visualizer.
+# Opens the browser automatically.
 python3 serve_heatmap.py
 ```
+
+The server spawns `qmk console` in the background and appends its output to `~/keylog.txt`, so one command does both capture and display. If you already have `qmk console | tee -a ~/keylog.txt` running in another terminal, pass `--no-console` to serve only.
 
 The visualizer at `http://localhost:8989` streams keypresses via Server-Sent Events and updates per-keypress. Each layer card shows the physical Sweep layout with keys colored by usage frequency.
 
@@ -141,5 +141,5 @@ To remove the logging overhead, set `CONSOLE_ENABLE = no` in `rules.mk` and refl
 | `config.h` | EE_HANDS, USB polling, serial speed, oneshot config |
 | `rules.mk` | Build flags (console, LTO, disabled features) |
 | `heatmap.html` | Real-time 4-layer heatmap visualizer |
-| `serve_heatmap.py` | Local HTTP + SSE server for live heatmap streaming |
+| `serve_heatmap.py` | Spawns `qmk console`, serves the heatmap, streams keypresses via SSE |
 | `analyze_usage.py` | CLI keylog analysis script |

@@ -2,15 +2,18 @@
 """
 Serve the heatmap visualizer with real-time keylog streaming.
 
-Usage:
-    # Terminal 1 — capture keylog:
-    qmk console | tee ~/keylog.txt
+Spawns `qmk console` in the background and appends its output to ~/keylog.txt,
+so a single command both captures and visualizes:
 
-    # Terminal 2 — start the visualizer:
     python3 serve_heatmap.py
+
+Pass --no-console to skip the capture (e.g. if you already have
+`qmk console | tee -a ~/keylog.txt` running elsewhere).
 """
 import http.server
 import os
+import shutil
+import subprocess
 import sys
 import time
 import webbrowser
@@ -86,10 +89,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
         pass
 
 
+def start_qmk_console():
+    qmk = shutil.which("qmk")
+    if qmk is None:
+        print("Warning: `qmk` not found on PATH — serving existing keylog only.")
+        print("         Run `qmk console | tee -a ~/keylog.txt` separately for live data.\n")
+        return None
+    log = open(KEYLOG_PATH, "a", buffering=1)
+    proc = subprocess.Popen(
+        [qmk, "console"],
+        stdout=log,
+        stderr=subprocess.STDOUT,
+    )
+    print(f"Console:  qmk console (pid {proc.pid}) -> {KEYLOG_PATH}")
+    return proc, log
+
+
 def main():
     if not os.path.exists(HEATMAP_PATH):
         print(f"Error: {HEATMAP_PATH} not found")
         sys.exit(1)
+
+    console = None
+    if "--no-console" not in sys.argv:
+        console = start_qmk_console()
 
     http.server.ThreadingHTTPServer.allow_reuse_address = True
     server = http.server.ThreadingHTTPServer(("localhost", PORT), Handler)
@@ -107,7 +130,16 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nStopped.")
+    finally:
         server.server_close()
+        if console is not None:
+            proc, log = console
+            proc.terminate()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+            log.close()
 
 
 if __name__ == "__main__":
