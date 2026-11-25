@@ -12,7 +12,7 @@ Usage:
 import sys
 from collections import Counter, defaultdict
 
-LAYER_NAMES = {0: "DEF", 1: "SYM", 2: "NAV", 3: "NUM"}
+LAYER_NAMES = {0: "BASE", 1: "SYM", 2: "NAV", 3: "NUM"}
 
 # Standard QMK keycodes (USB HID values)
 KEYCODE_NAMES = {
@@ -113,7 +113,7 @@ def main():
 
     if total == 0:
         print("No key events found.")
-        print("Make sure the log contains lines like: KL:0:1:2:0x002C")
+        print("Make sure the log contains lines like: KD:0:1:2:0x0004:0x00:12345")
         return
 
     print(f"\n{'='*60}")

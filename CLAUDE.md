@@ -33,8 +33,9 @@ qmk flash -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040 -bl uf2-split-
 
 - Always flash this way. A plain `qmk flash` (no `-bl`) keeps whatever
   handedness is stored and will not fix a mirrored half.
-- Use the reset/BOOT button, not `QK_BOOT`: with the halves separated, NAV is on
-  the other half, so the NUM layer can't be reached.
+- Use the reset/BOOT button, not `QK_BOOT`: reaching it needs NAV (left half)
+  plus SYM and the Boot key (right half), so it can't be used with the halves
+  separated.
 - Never connect or disconnect the TRRS cable while either half has power.
 - The user normally plugs USB into the right half via a CalDigit TS4 dock.
   `SPLIT_WATCHDOG_ENABLE` is set so the board recovers when the dock powers it

@@ -13,9 +13,9 @@ Based on [callum's](https://github.com/callum-oakley/qmk_firmware/tree/master/us
 
 ## Features
 
-- Custom oneshot modifiers (Shift, Ctrl, Alt, Cmd, Meh, Hyper) with no tap-hold timing
-- Cmd-Tab / Cmd-Grave window switching (Cmd stays held while NAV layer is active)
-- Ctrl-Tab / Ctrl-Shift-Tab tab switching (same hold behavior)
+- Custom oneshot modifiers (Shift, Ctrl, Alt, Cmd, Hyper) with no tap-hold timing
+- Cmd-Tab / Cmd-Grave app and window switching (Cmd stays held while NAV layer is active)
+- Ctrl-PgUp / Ctrl-PgDn to switch to the previous / next tab
 - Oneshot mods expire after 2 seconds if unused (ESC still cancels immediately)
 - `QK_BOOT` on the NUM layer to enter bootloader without double-tapping reset
 - Keypress and layer-change logging via QMK console (when `CONSOLE_ENABLE = yes`)
@@ -41,9 +41,9 @@ GCC 8 bottle's dependencies were removed (for example by `brew autoremove`). Rei
 brew install gmp isl libmpc mpfr
 ```
 
-### First time setup (EE_HANDS)
+### Flashing (EE_HANDS)
 
-Flash each half separately so the controller remembers which side it is:
+Always flash each half on its own with its side-specific command, with the TRRS cable disconnected. Never connect or disconnect TRRS while either half has power.
 
 ```bash
 # Left half — plug in left side, enter bootloader
@@ -53,15 +53,9 @@ qmk flash -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040 -bl uf2-split-
 qmk flash -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040 -bl uf2-split-right
 ```
 
-This writes handedness to each controller's memory, so USB can be plugged into either side.
+These builds store which side each controller is on every time it starts, so USB can be plugged into either side. Don't use a plain `qmk flash` without `-bl`: it keeps whatever side is stored, and if that is wrong (e.g. after an EEPROM reset) one half types mirrored. See the repo's `CLAUDE.md`.
 
-### Subsequent flashes
-
-After handedness is set, you can flash both halves with the same command:
-
-```bash
-qmk flash -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040
-```
+To enter the bootloader, double-tap the reset button or hold BOOT while plugging in. `QK_BOOT` can't be used with the halves separated.
 
 ### Build only (no flash)
 
@@ -76,12 +70,14 @@ If macOS won't mount the RPI-RP2 volume (common on recent macOS versions), use `
 ```bash
 brew install picotool
 
-# Enter bootloader (QK_BOOT on keyboard or hold BOOT + tap RESET on the KB2040)
-# Then:
+# Left half: build the left-side firmware, then enter the bootloader on the left half
+qmk compile -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040 -e EXTRAFLAGS=-DINIT_EE_HANDS_LEFT
+picotool load ferris_sweep_juliusdegesys_kb2040.uf2 && picotool reboot
+
+# Right half: same, with the right-side firmware
+qmk compile -kb ferris/sweep -km juliusdegesys -e CONVERT_TO=kb2040 -e EXTRAFLAGS=-DINIT_EE_HANDS_RIGHT
 picotool load ferris_sweep_juliusdegesys_kb2040.uf2 && picotool reboot
 ```
-
-Repeat for the other half.
 
 ## Heatmap Visualizer
 
@@ -111,9 +107,10 @@ This prints per-layer breakdowns with keycode names and hit counts.
 
 ### Log format
 
-The firmware emits three event types via `uprintf` when `CONSOLE_ENABLE = yes`:
+The firmware emits these lines via `uprintf` when `CONSOLE_ENABLE = yes`:
 
 ```
+MAP:0x<keycode>:<name>                                     custom keycode name (at startup)
 KD:<layer>:<row>:<col>:0x<keycode>:0x<mods>:<timestamp>   keydown
 KU:<layer>:<row>:<col>:0x<keycode>:<timestamp>             keyup
 LL:<layer>                                                 layer change
@@ -137,8 +134,9 @@ To remove the logging overhead, set `CONSOLE_ENABLE = no` in `rules.mk` and refl
 
 | File | Purpose |
 |---|---|
-| `keymap.c` | Keymap, oneshot mods, swapper, console logging |
-| `config.h` | EE_HANDS, USB polling, serial speed, oneshot config |
+| `keymap.c` | Layers, oneshot mod wiring, Cmd-Tab / Cmd-` switcher, console logging |
+| `oneshot.c`, `oneshot.h` | Oneshot mod implementation |
+| `config.h` | EE_HANDS, USB polling, serial speed, split watchdog |
 | `rules.mk` | Build flags (console, LTO, disabled features) |
 | `heatmap.html` | Real-time 4-layer heatmap visualizer |
 | `serve_heatmap.py` | Spawns `qmk console`, serves the heatmap, streams keypresses via SSE |
